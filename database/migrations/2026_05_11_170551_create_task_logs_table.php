@@ -20,7 +20,7 @@ return new class extends Migration
             $table->foreignIdFor(\App\Models\User::class, 'user_id')
                 ->constrained(Table::USERS->tableName())
                 ->onDelete('cascade');
-            $table->enum('action', ['created', 'updated', 'deleted', 'restored', 'assigned', 'status_changed', 'priority_changed']);
+            $table->string('action');
             $table->text('changes')->nullable();
             $table->timestamps();
         });

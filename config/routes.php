@@ -75,6 +75,6 @@ return [
         //
     ],
     'api-app' => [
-        //
+        \App\Http\Controllers\TaskController::class,
     ],
 ];

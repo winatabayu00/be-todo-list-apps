@@ -2,6 +2,8 @@
 
 namespace App\Models\Tasks;
 
+use App\Concerns\HasTask;
+use App\Contracts\InteractsWithTasks;
 use App\Enums\Table;
 use App\Models\Model;
 use App\Models\User;
@@ -14,12 +16,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $user_id
  * @property int $minutes
  * @property string $description
- * @property Task $task
  * @property User $user
  */
-class TaskTimeLog extends Model
+class TaskTimeLog extends Model implements InteractsWithTasks
 {
-    use HasUuids;
+    use HasUuids, HasTask;
 
     public function __construct(array $attributes = [])
     {
@@ -32,11 +33,6 @@ class TaskTimeLog extends Model
         'minutes',
         'description',
     ];
-
-    public function task(): BelongsTo
-    {
-        return $this->belongsTo(Task::class);
-    }
 
     public function user(): BelongsTo
     {

@@ -2,6 +2,8 @@
 
 namespace App\Models\Tasks;
 
+use App\Concerns\HasTask;
+use App\Contracts\InteractsWithTasks;
 use App\Enums\Table;
 use App\Models\Model;
 use App\Models\User;
@@ -13,14 +15,13 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string $id
  * @property string $title
  * @property bool $is_completed
- * @property string $task_id
  * @property string $assignee_id
  * @property Task $task
  * @property User $assignee
  */
-class SubTask extends Model
+class SubTask extends Model implements InteractsWithTasks
 {
-    use HasUuids, SoftDeletes;
+    use HasUuids, HasTask;
 
     public function __construct(array $attributes = [])
     {
@@ -39,10 +40,6 @@ class SubTask extends Model
         'is_completed' => 'boolean',
     ];
 
-    public function task(): BelongsTo
-    {
-        return $this->belongsTo(Task::class);
-    }
 
     public function assignee(): BelongsTo
     {

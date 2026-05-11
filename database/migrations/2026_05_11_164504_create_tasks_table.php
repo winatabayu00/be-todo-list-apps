@@ -5,8 +5,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -16,8 +15,8 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->string('title');
             $table->text('description')->nullable();
-            $table->enum('status', ['todo', 'in_progress', 'in_review', 'done'])->default('todo');
-            $table->enum('priority', ['urgent', 'high', 'normal', 'low'])->default('normal');
+            $table->string('status')->default('todo');
+            $table->string('priority')->default('normal');
             $table->date('start_date')->nullable();
             $table->date('due_date')->nullable();
             $table->foreignIdFor(\App\Models\User::class, 'assignee_id')->nullable()
