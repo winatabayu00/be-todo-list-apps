@@ -69,7 +69,6 @@ class Task extends Model
         'order_column'  => 'integer',
     ];
 
-    // Relasi
     public function project(): BelongsTo
     {
         return $this->belongsTo(Project::class);

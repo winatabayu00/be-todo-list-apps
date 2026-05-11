@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models\Tasks;
+namespace App\Models\Workspaces;
 
 use App\Enums\Table;
 use App\Models\Model;
@@ -9,37 +9,35 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * @property string $id
- * @property string $task_id
+ * @property string $workspace_id
  * @property string $user_id
- * @property string $action
- * @property string $changes
- * @property Task $task
+ * @property Workspace $workspace
  * @property User $user
  */
-class TaskLog extends Model
+class WorkspaceUser extends Model
 {
     use HasUuids;
+
+    public $incrementing = false;
+    protected $keyType = 'string';
+    protected $primaryKey = null;
 
     public function __construct(array $attributes = [])
     {
         parent::__construct($attributes);
-        $this->table = Table::TASK_LOGS->tableName();
+        $this->table = Table::WORKSPACE_USERS->tableName();
     }
+
     protected $fillable = [
-        'task_id',
+        'workspace_id',
         'user_id',
-        'action',
-        'changes',
     ];
 
-    protected $casts = [
-        'changes' => 'array',
-    ];
+    public $timestamps = false;
 
-    public function task(): BelongsTo
+    public function workspace(): BelongsTo
     {
-        return $this->belongsTo(Task::class);
+        return $this->belongsTo(Workspace::class);
     }
 
     public function user(): BelongsTo

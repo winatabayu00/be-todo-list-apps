@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('name');
             $table->text('description')->nullable();
             $table->enum('visibility', ['private', 'team', 'public'])->default('private');
-            $table->foreignIdFor(\App\Models\Workspace::class, 'workspace_id')
+            $table->foreignIdFor(\App\Models\Workspaces\Workspace::class, 'workspace_id')
                 ->constrained(Table::WORKSPACES->tableName())
                 ->onDelete('cascade');
             $table->foreignIdFor(\App\Models\User::class, 'created_by')

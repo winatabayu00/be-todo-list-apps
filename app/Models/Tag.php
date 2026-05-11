@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\Table;
 use App\Models\Tasks\Task;
+use App\Models\Workspaces\Workspace;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;

@@ -2,6 +2,7 @@
 
 namespace App\Models\Tasks;
 
+use App\Enums\Table;
 use App\Models\Model;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -20,7 +21,11 @@ class TaskTimeLog extends Model
 {
     use HasUuids;
 
-    protected $table = 'task_time_logs';
+    public function __construct(array $attributes = [])
+    {
+        parent::__construct($attributes);
+        $this->table = Table::TASK_TIME_LOGS->tableName();
+    }
     protected $fillable = [
         'task_id',
         'user_id',

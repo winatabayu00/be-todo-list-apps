@@ -16,7 +16,7 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->string('name');
             $table->string('color')->nullable();
-            $table->foreignIdFor(\App\Models\Workspace::class, 'workspace_id')
+            $table->foreignIdFor(\App\Models\Workspaces\Workspace::class, 'workspace_id')
                 ->constrained(Table::WORKSPACES->tableName())
                 ->onDelete('cascade');
             $table->timestamps();
