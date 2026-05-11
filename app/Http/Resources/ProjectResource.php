@@ -1,6 +1,4 @@
 <?php
-// app/Http/Resources/ProjectResource.php
-
 namespace App\Http\Resources;
 
 use App\Models\Project;

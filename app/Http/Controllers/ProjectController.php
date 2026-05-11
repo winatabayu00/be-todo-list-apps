@@ -10,7 +10,6 @@ use App\Services\ProjectService;
 use Dentro\Yalr\Attributes;
 use Illuminate\Http\Request;
 use Winata\Core\Response\Http\Response;
-use Winata\QueryBuilder\QueryBuilder;
 
 #[Attributes\Prefix('projects')]
 class ProjectController extends Controller
@@ -18,7 +17,9 @@ class ProjectController extends Controller
     #[Attributes\Get('')]
     public function index(): Response
     {
-        $query = new QueryBuilder(new ProjectQuery(), request());
+        $query = ProjectQuery::filterColumn()
+            ->orderColumn()
+            ->getAllDataPaginated();
         $projects = $query->paginate(request()->get('per_page', 15));
         return $this->response(ProjectResource::collection($projects));
     }
