@@ -11,11 +11,20 @@ use Winata\Core\Response\Http\Response;
 #[Attributes\Prefix('dashboard')]
 class DashboardController extends Controller
 {
-
     /**
-     * @param Request $request
-     * @param DashboardService $service
-     * @return Response
+     * Get task statistics grouped by status and priority.
+     *
+     * @authenticated
+     *
+     * @queryParam project_id string optional Filter by project ID.
+     *
+     * @response 200 {
+     *   "success": true,
+     *   "data": {
+     *     "by_status": {"todo": 5, "in_progress": 3, "in_review": 2, "done": 10},
+     *     "by_priority": {"urgent": 2, "high": 5, "normal": 8, "low": 5}
+     *   }
+     * }
      */
     #[Attributes\Get('stats')]
     public function stats(Request $request, DashboardService $service): Response
@@ -29,9 +38,17 @@ class DashboardController extends Controller
     }
 
     /**
-     * @param Request $request
-     * @param DashboardService $service
-     * @return Response
+     * Get upcoming tasks due in the next X days (default 7).
+     *
+     * @authenticated
+     *
+     * @queryParam project_id string optional Filter by project ID.
+     * @queryParam days integer optional Number of days to look ahead. Default 7.
+     *
+     * @response 200 {
+     *   "success": true,
+     *   "data": [{"id":"uuid","title":"...","due_date":"2025-05-20",...}]
+     * }
      */
     #[Attributes\Get('upcoming-tasks')]
     public function upcomingTasks(Request $request, DashboardService $service): Response
@@ -44,9 +61,16 @@ class DashboardController extends Controller
     }
 
     /**
-     * @param Request $request
-     * @param DashboardService $service
-     * @return Response
+     * Get overdue tasks (due date before today).
+     *
+     * @authenticated
+     *
+     * @queryParam project_id string optional Filter by project ID.
+     *
+     * @response 200 {
+     *   "success": true,
+     *   "data": [{"id":"uuid","title":"...","due_date":"2025-05-10",...}]
+     * }
      */
     #[Attributes\Get('overdue-tasks')]
     public function overdueTasks(Request $request, DashboardService $service): Response
@@ -56,9 +80,17 @@ class DashboardController extends Controller
     }
 
     /**
-     * @param Request $request
-     * @param DashboardService $service
-     * @return Response
+     * Get recently created tasks (last X days, default 7).
+     *
+     * @authenticated
+     *
+     * @queryParam project_id string optional Filter by project ID.
+     * @queryParam days integer optional Number of days to look back. Default 7.
+     *
+     * @response 200 {
+     *   "success": true,
+     *   "data": [{"id":"uuid","title":"...","created_at":"...",...}]
+     * }
      */
     #[Attributes\Get('recent-tasks')]
     public function recentTasks(Request $request, DashboardService $service): Response
@@ -71,9 +103,16 @@ class DashboardController extends Controller
     }
 
     /**
-     * @param Request $request
-     * @param DashboardService $service
-     * @return Response
+     * Get tasks assigned to the authenticated user.
+     *
+     * @authenticated
+     *
+     * @queryParam status string optional Filter by status (todo, in_progress, in_review, done).
+     *
+     * @response 200 {
+     *   "success": true,
+     *   "data": [{"id":"uuid","title":"...","status":"in_progress",...}]
+     * }
      */
     #[Attributes\Get('my-tasks')]
     public function myTasks(Request $request, DashboardService $service): Response
@@ -84,9 +123,22 @@ class DashboardController extends Controller
     }
 
     /**
-     * @param string $workspaceId
-     * @param DashboardService $service
-     * @return Response
+     * Get summary of a specific workspace (project, task, member counts).
+     *
+     * @authenticated
+     *
+     * @urlParam workspaceId string required The UUID of the workspace.
+     *
+     * @response 200 {
+     *   "success": true,
+     *   "data": {
+     *     "id": "uuid",
+     *     "name": "My Workspace",
+     *     "project_count": 5,
+     *     "task_count": 67,
+     *     "member_count": 8
+     *   }
+     * }
      */
     #[Attributes\Get('workspace/{workspaceId}/summary')]
     public function workspaceSummary(string $workspaceId, DashboardService $service): Response
@@ -96,8 +148,22 @@ class DashboardController extends Controller
     }
 
     /**
-     * @param DashboardService $service
-     * @return Response
+     * Get overall summary for the authenticated user across all accessible workspaces.
+     *
+     * @authenticated
+     *
+     * @response 200 {
+     *   "success": true,
+     *   "data": {
+     *     "total_tasks": 45,
+     *     "completed_tasks": 12,
+     *     "in_progress_tasks": 8,
+     *     "overdue_tasks": 3,
+     *     "completion_rate": 26.7,
+     *     "time_spent_this_week_minutes": 380,
+     *     "time_spent_this_week_hours": 6.3
+     *   }
+     * }
      */
     #[Attributes\Get('overall-summary')]
     public function overallSummary(DashboardService $service): Response
