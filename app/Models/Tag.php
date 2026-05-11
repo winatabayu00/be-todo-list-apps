@@ -40,8 +40,8 @@ class Tag extends Model
         return $this->belongsTo(Workspace::class);
     }
 
-    public function tasks(): BelongsToMany
+    public function members(): BelongsToMany
     {
-        return $this->belongsToMany(Task::class, 'task_tag');
+        return $this->belongsToMany(User::class, Table::WORKSPACE_USERS->tableName());
     }
 }

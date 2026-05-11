@@ -91,12 +91,12 @@ class Task extends Model
 
     public function tags(): BelongsToMany
     {
-        return $this->belongsToMany(Tag::class, 'task_tag');
+        return $this->belongsToMany(Tag::class, Table::TASK_TAGS->tableName());
     }
 
     public function assignees(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, 'task_user');
+        return $this->belongsToMany(User::class, Table::TASK_USERS->tableName());
     }
 
     // Scopes

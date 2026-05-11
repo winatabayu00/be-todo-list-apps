@@ -54,7 +54,7 @@ class Workspace extends Model
 
     public function members(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, 'workspace_user');
+        return $this->belongsToMany(User::class, Table::WORKSPACE_USERS->tableName());
     }
 
     public function tags(): HasMany
