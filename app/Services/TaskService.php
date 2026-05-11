@@ -7,8 +7,14 @@ use App\Enums\TasksPriority;
 use App\Enums\TasksStatus;
 use App\Models\Tasks\Task;
 use App\Models\Tasks\TaskLog;
+use App\Models\Tasks\TaskTimeLog;
 use App\Models\User;
+use Illuminate\Container\EntryNotFoundException;
+use Illuminate\Contracts\Container\CircularDependencyException;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Validation\Rules\Enum;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 use Winata\PackageBased\Abstracts\BaseService;
 
 class TaskService extends BaseService
@@ -152,5 +158,95 @@ class TaskService extends BaseService
         ]);
 
         return $task;
+    }
+
+    /**
+     * @param Task $task
+     * @param User $user
+     * @param array $data
+     * @return TaskTimeLog
+     */
+    public function logTime(Task $task, User $user, array $data): TaskTimeLog
+    {
+        $validated = $this->validate($data, [
+            'minutes' => ['required', 'integer', 'min:1', 'max:1440'],
+            'description' => ['nullable', 'string', 'max:255'],
+        ]);
+
+        $input = TaskTimeLog::getFillableAttribute([
+            'task_id' => $task->id,
+            'user_id' => $user->id,
+            'minutes' => $validated['minutes'],
+            'description' => $validated['description'] ?? null,
+        ]);
+
+        $timeLog = TaskTimeLog::query()->create($input);
+
+        $task->increment('time_spent', $validated['minutes']);
+
+        TaskLog::create([
+            'task_id' => $task->id,
+            'user_id' => $user->id,
+            'action' => TasksLogActions::UPDATED->value,
+            'changes' => json_encode(['time_spent_increment' => $validated['minutes']]),
+        ]);
+
+        return $timeLog->load('user');
+    }
+
+    /**
+     * @param Task $task
+     * @param array $filters
+     * @return LengthAwarePaginator
+     * @throws EntryNotFoundException
+     * @throws CircularDependencyException
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
+    public function getTimeLogs(Task $task, array $filters = []): \Illuminate\Contracts\Pagination\LengthAwarePaginator
+    {
+        $query = $task->timeLogs()->with('user');
+
+        if (!empty($filters['date_from'])) {
+            $query->whereDate('created_at', '>=', $filters['date_from']);
+        }
+        if (!empty($filters['date_to'])) {
+            $query->whereDate('created_at', '<=', $filters['date_to']);
+        }
+        if (!empty($filters['user_id'])) {
+            $query->where('user_id', $filters['user_id']);
+        }
+
+        $perPage = request()->get('per_page', 15);
+        return $query->latest()->paginate($perPage);
+    }
+
+    /**
+     * @param Task $task
+     * @return int
+     */
+    public function getTotalTimeSpent(Task $task): int
+    {
+        return $task->time_spent;
+    }
+
+    /**
+     * @param Task $task
+     * @param User $user
+     * @param int $minutes
+     * @return Task
+     */
+    public function updateTimeEstimate(Task $task, User $user, int $minutes): Task
+    {
+        $task->update(['time_estimate' => $minutes]);
+
+        TaskLog::create([
+            'task_id' => $task->id,
+            'user_id' => $user->id,
+            'action' => TasksLogActions::UPDATED->value,
+            'changes' => json_encode(['time_estimate' => $minutes]),
+        ]);
+
+        return $task->fresh();
     }
 }

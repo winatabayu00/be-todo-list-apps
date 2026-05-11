@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Resources\Tasks;
+namespace App\Http\Resources;
 
 use App\Models\Tasks\SubTask;
 use Illuminate\Http\Request;

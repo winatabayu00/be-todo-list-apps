@@ -23,6 +23,7 @@ class TaskResource extends JsonResource
             'due_date' => $this->resource->due_date?->toDateString(),
             'time_estimate' => $this->resource->time_estimate,
             'time_spent' => $this->resource->time_spent,
+            'time_remaining' => $this->resource->time_estimate - $this->resource->time_spent,
             'order_column' => $this->resource->order_column,
             'created_at' => $this->resource->created_at?->toISOString(),
             'updated_at' => $this->resource->updated_at?->toISOString(),

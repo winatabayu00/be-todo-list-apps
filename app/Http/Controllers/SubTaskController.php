@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Resources\Tasks\SubTaskResource;
+use App\Http\Resources\SubTaskResource;
 use App\Models\Tasks\SubTask;
 use App\Queries\SubTaskQuery;
 use App\Services\SubTaskService;
@@ -13,7 +13,6 @@ use Illuminate\Http\Request;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Winata\Core\Response\Http\Response;
-use Winata\QueryBuilder\QueryBuilder;
 
 #[Attributes\Prefix('subtasks')]
 class SubTaskController extends Controller
