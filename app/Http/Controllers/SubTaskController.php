@@ -36,9 +36,8 @@ class SubTaskController extends Controller
         $query = SubTaskQuery::filterColumn()
             ->orderColumn()
             ->getAllDataPaginated();
-        $subTasks = $query->paginate(request()->get('per_page', 15));
 
-        return $this->response(SubTaskResource::collection($subTasks));
+        return $this->response(SubTaskResource::collection($query));
     }
 
     /**

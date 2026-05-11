@@ -35,8 +35,7 @@ class ProjectController extends Controller
         $query = ProjectQuery::filterColumn()
             ->orderColumn()
             ->getAllDataPaginated();
-        $projects = $query->paginate(request()->get('per_page', 15));
-        return $this->response(ProjectResource::collection($projects));
+        return $this->response(ProjectResource::collection($query));
     }
 
     /**

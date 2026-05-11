@@ -37,9 +37,8 @@ class TagController extends Controller
         $query = TagQuery::filterColumn()
             ->orderColumn()
             ->getAllDataPaginated();
-        $tags = $query->paginate(request()->get('per_page', 15));
 
-        return $this->response(TagResource::collection($tags));
+        return $this->response(TagResource::collection($query));
     }
 
     /**

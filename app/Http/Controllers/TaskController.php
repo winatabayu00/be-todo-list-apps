@@ -39,11 +39,11 @@ class TaskController extends Controller
     #[Attributes\Get('')]
     public function index(): Response
     {
-        $data = TaskQuery::filterColumn()
+        $query = TaskQuery::filterColumn()
             ->orderColumn()
             ->getAllDataPaginated();
 
-        return $this->response(TaskResource::collection($data));
+        return $this->response(TaskResource::collection($query));
     }
 
     /**
