@@ -77,5 +77,6 @@ return [
     ],
     'api-app' => [
         \App\Http\Controllers\TaskController::class,
+        \App\Http\Controllers\ProjectController::class,
     ],
 ];

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\ProjectVisibility;
 use App\Enums\Table;
 use App\Models\Tasks\Task;
 use App\Models\Workspaces\Workspace;
@@ -53,5 +54,10 @@ class Project extends Model
     public function tasks(): HasMany
     {
         return $this->hasMany(Task::class);
+    }
+
+    public function scopePublic($query)
+    {
+        return $query->where('visibility', '=', ProjectVisibility::PUBLIC->value);
     }
 }

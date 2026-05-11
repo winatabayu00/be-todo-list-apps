@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Resources\Tasks\TaskResource;
+use App\Http\Resources\TaskResource;
 use App\Models\Tasks\Task;
 use App\Queries\TaskQuery;
 use App\Services\TaskService;
@@ -78,15 +78,15 @@ class TaskController extends Controller
     }
 
     /**
-     * @param Task $task
+     * @param string $taskId
      * @param TaskService $service
      * @return Response
      */
     #[Attributes\Patch('{task}/restore')]
-    public function restore(Task $task, TaskService $service): Response
+    public function restore(string $taskId, TaskService $service): Response
     {
         $user = auth()->user();
-        $service->delete(task: $task, user: $user);
+        $service->restore(taskId: $taskId, user: $user);
         return $this->response();
     }
 }
