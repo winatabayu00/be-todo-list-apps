@@ -79,7 +79,7 @@ class AuthController extends Controller
      * @param Request $request
      * @return Response
      */
-    #[Attributes\Post('logout')]
+    #[Attributes\Post('logout', middleware: ['auth:sanctum'])]
     public function logout(Request $request): Response
     {
         $request->user()->currentAccessToken()->delete();
@@ -90,7 +90,7 @@ class AuthController extends Controller
      * @param Request $request
      * @return Response
      */
-    #[Attributes\Get('profile')]
+    #[Attributes\Get('profile', middleware: ['auth:sanctum'])]
     public function profile(Request $request): Response
     {
         return $this->response([

@@ -4,34 +4,49 @@ namespace App\Policies;
 
 use App\Models\Tasks\Task;
 use App\Models\User;
+use App\Models\Workspaces\Workspace;
 
 class TaskPolicy
 {
+    /**
+     * Determine if user can view the task.
+     */
     public function view(User $user, Task $task): bool
     {
-        $project = $task->project;
-        return $user->id === $task->created_by ||
-            $user->id === $task->assignee_id ||
-            $project->workspace->owner_id === $user->id ||
-            $project->workspace->members()->where('user_id', $user->id)->exists();
+        return $this->hasAccessToTask($user, $task);
     }
 
+    /**
+     * Determine if user can update the task.
+     */
     public function update(User $user, Task $task): bool
     {
-        $project = $task->project;
-        return $user->id === $task->created_by ||
-            $project->workspace->owner_id === $user->id;
+        return $this->hasAccessToTask($user, $task);
     }
 
+    /**
+     * Determine if user can delete the task.
+     */
     public function delete(User $user, Task $task): bool
     {
-        return $this->update($user, $task);
+        return $this->hasAccessToTask($user, $task);
     }
 
-    public function logTime(User $user, Task $task): bool
+    /**
+     * Check if user has access to task's workspace.
+     */
+    protected function hasAccessToTask(User $user, Task $task): bool
     {
-        return $user->id === $task->assignee_id ||
-            $user->id === $task->created_by ||
-            $task->project->workspace->owner_id === $user->id;
+        $workspace = $task->project?->workspace;
+        if (!$workspace) {
+            return false;
+        }
+
+        // Owner atau member workspace
+        if ($workspace->owner_id === $user->id) {
+            return true;
+        }
+
+        return $workspace->members()->where('user_id', $user->id)->exists();
     }
 }
