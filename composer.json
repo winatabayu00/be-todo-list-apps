@@ -8,9 +8,10 @@
     "require": {
         "php": "^8.3",
         "archtechx/enums": "^1.1",
-        "laravel/framework": "^13.7",
-        "laravel/tinker": "^3.0",
         "dentro/yalr": "^1.4",
+        "laravel/framework": "^13.7",
+        "laravel/sanctum": "^4.3",
+        "laravel/tinker": "^3.0",
         "winatabayu00/package-based": "^1.0",
         "winatabayu00/query-builder-custom": "^1.0",
         "winatabayu00/response": "^1.0"

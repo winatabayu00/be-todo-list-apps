@@ -73,7 +73,7 @@ return [
         //
     ],
     'api' => [
-        //
+        \App\Http\Controllers\AuthController::class,
     ],
     'api-app' => [
         \App\Http\Controllers\TaskController::class,
