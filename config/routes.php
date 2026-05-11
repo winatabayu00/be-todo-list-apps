@@ -80,5 +80,7 @@ return [
         \App\Http\Controllers\ProjectController::class,
         \App\Http\Controllers\WorkspaceController::class,
         \App\Http\Controllers\TagController::class,
+        \App\Http\Controllers\TimeTrackingController::class,
+        \App\Http\Controllers\DashboardController::class,
     ],
 ];
