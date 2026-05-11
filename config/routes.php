@@ -26,7 +26,8 @@ return [
     */
 
     'preloads' => [
-        //
+        App\Http\Routes\RouteModelBinding::class,
+        App\Http\Routes\RouteRateLimiter::class,
     ],
 
     /*
