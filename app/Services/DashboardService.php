@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Enums\TasksPriority;
 use App\Enums\TasksStatus;
 use App\Models\Tasks\Task;
+use App\Models\User;
 use App\Models\Workspaces\Workspace;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
@@ -15,15 +16,16 @@ class DashboardService
     /**
      * Get task statistics by status for a specific project (or all accessible projects).
      */
-    public function taskStatusStats(?string $projectId = null): array
+    public function taskStatusStats(User $user, ?string $projectId = null): array
     {
-        $query = Task::query();
+        $query = Task::query()
+            ->where('assignee_id', '=', $user->id);
 
         if ($projectId) {
             $query->where('project_id', $projectId);
         } else {
             // Filter by accessible projects (through workspace membership)
-            $accessibleProjectIds = $this->getAccessibleProjectIds();
+            $accessibleProjectIds = $this->getAccessibleProjectIds($user);
             $query->whereIn('project_id', $accessibleProjectIds);
         }
 
@@ -38,14 +40,15 @@ class DashboardService
     /**
      * Get task statistics by priority.
      */
-    public function taskPriorityStats(?string $projectId = null): array
+    public function taskPriorityStats(User $user, ?string $projectId = null): array
     {
-        $query = Task::query();
+        $query = Task::query()
+            ->where('assignee_id', '=', $user->id);
 
         if ($projectId) {
             $query->where('project_id', $projectId);
         } else {
-            $ids = $this->getAccessibleProjectIds();
+            $ids = $this->getAccessibleProjectIds($user);
             $query->whereIn('project_id', $ids);
         }
 
@@ -60,9 +63,10 @@ class DashboardService
     /**
      * Get upcoming tasks (due in next 7 days).
      */
-    public function upcomingTasks(?string $projectId = null, int $days = 7): Collection
+    public function upcomingTasks(User $user, ?string $projectId = null, int $days = 7): Collection
     {
         $query = Task::with(['project', 'assignee'])
+            ->where('assignee_id', '=', $user->id)
             ->where('due_date', '>=', Carbon::today())
             ->where('due_date', '<=', Carbon::today()->addDays($days))
             ->where('status', '!=', TasksStatus::DONE->value);
@@ -70,7 +74,7 @@ class DashboardService
         if ($projectId) {
             $query->where('project_id', $projectId);
         } else {
-            $ids = $this->getAccessibleProjectIds();
+            $ids = $this->getAccessibleProjectIds($user);
             $query->whereIn('project_id', $ids);
         }
 
@@ -80,16 +84,17 @@ class DashboardService
     /**
      * Get overdue tasks.
      */
-    public function overdueTasks(?string $projectId = null): Collection
+    public function overdueTasks(User $user, ?string $projectId = null): Collection
     {
         $query = Task::with(['project', 'assignee'])
+            ->where('assignee_id', '=', $user->id)
             ->where('due_date', '<', Carbon::today())
             ->where('status', '!=', TasksStatus::DONE->value);
 
         if ($projectId) {
             $query->where('project_id', $projectId);
         } else {
-            $ids = $this->getAccessibleProjectIds();
+            $ids = $this->getAccessibleProjectIds($user);
             $query->whereIn('project_id', $ids);
         }
 
@@ -99,15 +104,16 @@ class DashboardService
     /**
      * Get recent tasks (last 7 days created).
      */
-    public function recentTasks(?string $projectId = null, int $days = 7): Collection
+    public function recentTasks(User $user, ?string $projectId = null, int $days = 7): Collection
     {
         $query = Task::with(['project', 'assignee', 'creator'])
+            ->where('assignee_id', $user->id)
             ->where('created_at', '>=', Carbon::now()->subDays($days));
 
         if ($projectId) {
             $query->where('project_id', $projectId);
         } else {
-            $ids = $this->getAccessibleProjectIds();
+            $ids = $this->getAccessibleProjectIds($user);
             $query->whereIn('project_id', $ids);
         }
 
@@ -117,10 +123,10 @@ class DashboardService
     /**
      * Get tasks assigned to current user.
      */
-    public function myTasks(string $userId, ?string $status = null): Collection
+    public function myTasks(User $user, ?string $status = null): Collection
     {
         $query = Task::with(['project'])
-            ->where('assignee_id', $userId)
+            ->where('assignee_id', $user->id)
             ->orderBy('due_date');
 
         if ($status && in_array($status, TasksStatus::values())) {
@@ -153,9 +159,9 @@ class DashboardService
     /**
      * Get overall summary for the user (across all accessible workspaces/projects).
      */
-    public function overallSummary(string $userId): array
+    public function overallSummary(User $user): array
     {
-        $accessibleProjectIds = $this->getAccessibleProjectIds();
+        $accessibleProjectIds = $this->getAccessibleProjectIds($user);
 
         $totalTasks = Task::whereIn('project_id', $accessibleProjectIds)->count();
         $completedTasks = Task::whereIn('project_id', $accessibleProjectIds)
@@ -188,9 +194,8 @@ class DashboardService
     /**
      * Helper: get IDs of projects the user can access (through workspace membership).
      */
-    protected function getAccessibleProjectIds(): array
+    protected function getAccessibleProjectIds(User $user): array
     {
-        $user = auth()->user();
         if (!$user) {
             return [];
         }

@@ -42,9 +42,10 @@ class DashboardController extends Controller
     public function stats(Request $request, DashboardService $service): Response
     {
         $projectId = $request->get('project_id');
+        $user = auth()->user();
         $stats = [
-            'by_status' => $service->taskStatusStats($projectId),
-            'by_priority' => $service->taskPriorityStats($projectId),
+            'by_status' => $service->taskStatusStats($user, $projectId),
+            'by_priority' => $service->taskPriorityStats($user, $projectId ),
         ];
         return $this->response($stats);
     }
@@ -87,7 +88,9 @@ class DashboardController extends Controller
     #[Attributes\Get('upcoming-tasks')]
     public function upcomingTasks(Request $request, DashboardService $service): Response
     {
+        $user = auth()->user();
         $tasks = $service->upcomingTasks(
+            $user,
             $request->get('project_id'),
             $request->get('days', 7)
         );
@@ -121,7 +124,8 @@ class DashboardController extends Controller
     #[Attributes\Get('overdue-tasks')]
     public function overdueTasks(Request $request, DashboardService $service): Response
     {
-        $tasks = $service->overdueTasks($request->get('project_id'));
+        $user = auth()->user();
+        $tasks = $service->overdueTasks($user, $request->get('project_id'));
         return $this->response(TaskResource::collection($tasks));
     }
 
@@ -152,7 +156,9 @@ class DashboardController extends Controller
     #[Attributes\Get('recent-tasks')]
     public function recentTasks(Request $request, DashboardService $service): Response
     {
+        $user = auth()->user();
         $tasks = $service->recentTasks(
+            $user,
             $request->get('project_id'),
             $request->get('days', 7)
         );
@@ -187,7 +193,7 @@ class DashboardController extends Controller
     public function myTasks(Request $request, DashboardService $service): Response
     {
         $user = auth()->user();
-        $tasks = $service->myTasks($user->id, $request->get('status'));
+        $tasks = $service->myTasks($user, $request->get('status'));
         return $this->response(TaskResource::collection($tasks));
     }
 
@@ -243,7 +249,7 @@ class DashboardController extends Controller
     public function overallSummary(DashboardService $service): Response
     {
         $user = auth()->user();
-        $summary = $service->overallSummary($user->id);
+        $summary = $service->overallSummary($user);
         return $this->response($summary);
     }
 }

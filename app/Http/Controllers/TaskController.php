@@ -131,7 +131,12 @@ class TaskController extends Controller
     public function create(Request $request, TaskService $service): Response
     {
         $user = auth()->user();
-        $task = $service->create(user: $user, data: $request->input());
+        $input = $request->input();
+        if (empty($input['assignee_id']) && empty($input['assignees'])) {
+            $input['assignee_id'] = $user->id;
+        }
+
+        $task = $service->create(user: $user, data: $input);
 
         return $this->response(TaskResource::make($task));
     }
