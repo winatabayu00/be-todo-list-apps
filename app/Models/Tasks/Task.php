@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 
@@ -35,6 +36,7 @@ use Illuminate\Support\Carbon;
  * @property Collection<SubTask> $subtasks
  * @property Collection<Tag> $tags
  * @property Collection<User> $assignees
+ * @property Collection<TaskTimeLog> $timeLogs
  */
 class Task extends Model
 {
@@ -108,6 +110,11 @@ class Task extends Model
     public function scopeOfPriority($query, $priority)
     {
         return $query->where('priority', $priority);
+    }
+
+    public function timeLogs(): HasMany
+    {
+        return $this->hasMany(TaskTimeLog::class, 'task_id');
     }
 
     // Boot events untuk logging
