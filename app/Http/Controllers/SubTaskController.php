@@ -28,7 +28,20 @@ class SubTaskController extends Controller
      * @queryParam include string optional Eager load relations: task, assignee.
      * @queryParam per_page integer optional Items per page (default 15, max 100).
      *
-     * @response array{success: bool, data: SubTaskResource[], meta: array}
+     * @response 200 {
+     *   "success": true,
+     *   "data": [
+     *     {
+     *       "id": "uuid",
+     *       "title": "Write documentation",
+     *       "is_completed": false,
+     *       "task_id": "task-uuid",
+     *       "assignee_id": "user-uuid",
+     *       "created_at": "2025-04-01T12:00:00Z"
+     *     }
+     *   ],
+     *   "meta": {"current_page":1,"per_page":15,"total":1,"last_page":1}
+     * }
      */
     #[Attributes\Get('')]
     public function index(): Response
@@ -50,7 +63,17 @@ class SubTaskController extends Controller
      * @bodyParam assignee_id string optional Assignee user ID (UUID).
      * @bodyParam is_completed boolean optional Initial completion status (default false).
      *
-     * @response 201 {"success": true, "data": {"id": "...", "title": "...", ...}}
+     * @response 201 {
+     *   "success": true,
+     *   "data": {
+     *     "id": "uuid",
+     *     "title": "Write documentation",
+     *     "is_completed": false,
+     *     "task_id": "task-uuid",
+     *     "assignee_id": "user-uuid",
+     *     "created_at": "2025-04-01T12:00:00Z"
+     *   }
+     * }
      */
     #[Attributes\Post('create')]
     public function create(Request $request, SubTaskService $service): Response
@@ -68,7 +91,16 @@ class SubTaskController extends Controller
      *
      * @urlParam subTask string required Subtask ID (UUID). Example: "subtask-123"
      *
-     * @response {"success": true, "data": {"id": "...", "title": "...", "task": {...}, "assignee": {...}}}
+     * @response 200 {
+     *   "success": true,
+     *   "data": {
+     *     "id": "...",
+     *     "title": "Write documentation",
+     *     "is_completed": false,
+     *     "task": {"id":"task-uuid","title":"..."},
+     *     "assignee": {"id":"user-uuid","name":"John Doe"}
+     *   }
+     * }
      */
     #[Attributes\Get('{subTask}/detail')]
     public function show(SubTask $subTask): Response
@@ -87,7 +119,16 @@ class SubTaskController extends Controller
      * @bodyParam assignee_id string optional New assignee ID.
      * @bodyParam is_completed boolean optional New completion status.
      *
-     * @response {"success": true, "data": {...}}
+     * @response 200 {
+     *   "success": true,
+     *   "data": {
+     *     "id": "...",
+     *     "title": "Updated title",
+     *     "is_completed": true,
+     *     "task_id": "task-uuid",
+     *     "assignee_id": "user-uuid"
+     *   }
+     * }
      */
     #[Attributes\Put('{subTask}/update')]
     public function update(Request $request, SubTask $subTask, SubTaskService $service): Response
@@ -103,7 +144,7 @@ class SubTaskController extends Controller
      *
      * @urlParam subTask string required Subtask ID (UUID).
      *
-     * @response {"success": true, "message": "Subtask deleted"}
+     * @response 200 {"success": true, "data": {"message": "Subtask deleted"}}
      */
     #[Attributes\Delete('{subTask}/delete')]
     public function destroy(SubTask $subTask, SubTaskService $service): Response
@@ -119,7 +160,16 @@ class SubTaskController extends Controller
      *
      * @urlParam id string required Subtask ID (UUID).
      *
-     * @response {"success": true, "data": {...}}
+     * @response 200 {
+     *   "success": true,
+     *   "data": {
+     *     "id": "...",
+     *     "title": "...",
+     *     "is_completed": true,
+     *     "task_id": "task-uuid",
+     *     "assignee_id": "user-uuid"
+     *   }
+     * }
      */
     #[Attributes\Patch('{id}/restore')]
     public function restore(string $id, SubTaskService $service): Response

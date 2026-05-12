@@ -28,8 +28,19 @@ class TagController extends Controller
      * @queryParam include string optional Eager load relations: workspace.
      * @queryParam per_page integer optional Items per page (default 15, max 100).
      *
-     * @response array{success: bool, data: TagResource[], meta: array{current_page: int, per_page: int, total: int, last_page: int}}
-     * @response status=401 {"success": false, "message": "Unauthenticated."}
+     * @response 200 {
+     *   "success": true,
+     *   "data": [
+     *     {
+     *       "id": "uuid",
+     *       "name": "bug",
+     *       "color": "#FF0000",
+     *       "workspace": {"id":"workspace-uuid","name":"Acme"}
+     *     }
+     *   ],
+     *   "meta": {"current_page":1,"per_page":15,"total":1,"last_page":1}
+     * }
+     * @response 401 {"success": false, "message": "Unauthenticated."}
      */
     #[Attributes\Get('')]
     public function index(): Response
@@ -51,7 +62,10 @@ class TagController extends Controller
      * @bodyParam name string required Tag name. Example: "bug"
      * @bodyParam color string optional Hex color code. Example: "#FF0000"
      *
-     * @response 201 {"success": true, "data": {"id": "uuid", "name": "bug", "color": "#FF0000", "workspace_id": "..."}}
+     * @response 201 {
+     *   "success": true,
+     *   "data": {"id": "uuid", "name": "bug", "color": "#FF0000", "workspace_id": "..."}
+     * }
      * @response 422 {"success": false, "message": "Validation error", "errors": {...}}
      */
     #[Attributes\Post('create')]
@@ -73,8 +87,11 @@ class TagController extends Controller
      *
      * @urlParam tag string required Tag ID (UUID). Example: "tag-123"
      *
-     * @response {"success": true, "data": {"id": "...", "name": "...", "color": "...", "workspace": {...}}}
-     * @response status=404 {"success": false, "message": "No query results for model"}
+     * @response 200 {
+     *   "success": true,
+     *   "data": {"id": "...", "name": "...", "color": "...", "workspace": {"id":"ws-uuid","name":"Acme"}}
+     * }
+     * @response 404 {"success": false, "message": "No query results for model"}
      */
     #[Attributes\Get('{tag}/detail')]
     public function show(Tag $tag): Response
@@ -92,7 +109,10 @@ class TagController extends Controller
      * @bodyParam name string optional New tag name. Example: "critical"
      * @bodyParam color string optional New hex color. Example: "#00FF00"
      *
-     * @response {"success": true, "data": {"id": "...", "name": "critical", "color": "#00FF00", ...}}
+     * @response 200 {
+     *   "success": true,
+     *   "data": {"id": "...", "name": "critical", "color": "#00FF00", "workspace": {"id":"ws-uuid","name":"Acme"}}
+     * }
      */
     #[Attributes\Put('{tag}/update')]
     public function update(Request $request, Tag $tag, TagService $service): Response
@@ -108,7 +128,7 @@ class TagController extends Controller
      *
      * @urlParam tag string required Tag ID (UUID).
      *
-     * @response {"success": true, "message": "Tag deleted"}
+     * @response 200 {"success": true, "data": null}
      */
     #[Attributes\Delete('{tag}/delete')]
     public function destroy(Tag $tag, TagService $service): Response
@@ -124,7 +144,10 @@ class TagController extends Controller
      *
      * @urlParam id string required Tag ID (UUID).
      *
-     * @response {"success": true, "data": {...}}
+     * @response 200 {
+     *   "success": true,
+     *   "data": {"id":"uuid","name":"bug","color":"#FF0000","workspace": {"id":"ws-uuid","name":"Acme"}}
+     * }
      */
     #[Attributes\Patch('{id}/restore')]
     public function restore(string $id, TagService $service): Response

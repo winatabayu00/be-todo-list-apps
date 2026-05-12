@@ -27,8 +27,23 @@ class WorkspaceController extends Controller
      * @queryParam include string optional Eager load relations: owner, members, projects, tags.
      * @queryParam per_page integer optional Items per page (default 15, max 100).
      *
-     * @response array{success: bool, data: WorkspaceResource[], meta: array{current_page: int, per_page: int, total: int, last_page: int}}
-     * @response status=401 {"success": false, "message": "Unauthenticated."}
+     * @response 200 {
+     *   "success": true,
+     *   "data": [
+     *     {
+     *       "id": "uuid",
+     *       "name": "Acme Corp",
+     *       "description": "Main workspace for Acme Corp",
+     *       "owner_id": "user-uuid",
+     *       "created_at": "2025-04-01T12:00:00Z",
+     *       "updated_at": "2025-04-01T12:00:00Z",
+     *       "owner": {"id":"user-uuid","name":"John Doe","email":"john@example.com"},
+     *       "members": []
+     *     }
+     *   ],
+     *   "meta": {"current_page":1,"per_page":15,"total":1,"last_page":1}
+     * }
+     * @response 401 {"success": false, "message": "Unauthenticated."}
      */
     #[Attributes\Get('')]
     public function index(): Response
@@ -51,7 +66,17 @@ class WorkspaceController extends Controller
      * @bodyParam name string required Workspace name. Example: "Acme Corp"
      * @bodyParam description string optional Workspace description. Example: "Main workspace for Acme Corp"
      *
-     * @response 201 {"success": true, "data": {"id": "uuid", "name": "Acme Corp", ...}}
+     * @response 201 {
+     *   "success": true,
+     *   "data": {
+     *     "id": "uuid",
+     *     "name": "Acme Corp",
+     *     "description": "Main workspace for Acme Corp",
+     *     "owner_id": "user-uuid",
+     *     "created_at": "2025-04-01T12:00:00Z",
+     *     "updated_at": "2025-04-01T12:00:00Z"
+     *   }
+     * }
      * @response 422 {"success": false, "message": "Validation error", "errors": {...}}
      */
     #[Attributes\Post('create')]
@@ -70,8 +95,19 @@ class WorkspaceController extends Controller
      *
      * @urlParam workspace string required Workspace ID (UUID). Example: "abc-123"
      *
-     * @response {"success": true, "data": {"id": "abc-123", "name": "...", "owner": {...}, "members": [...]}}
-     * @response status=404 {"success": false, "message": "No query results for model"}
+     * @response 200 {
+     *   "success": true,
+     *   "data": {
+     *     "id": "abc-123",
+     *     "name": "Acme Corp",
+     *     "description": "...",
+     *     "owner": {"id":"user-uuid","name":"John Doe","email":"john@example.com"},
+     *     "members": [
+     *       {"id":"user-uuid","name":"Jane Doe","email":"jane@example.com"}
+     *     ]
+     *   }
+     * }
+     * @response 404 {"success": false, "message": "No query results for model"}
      */
     #[Attributes\Get('{workspace}/detail')]
     public function show(Workspace $workspace): Response
@@ -89,7 +125,15 @@ class WorkspaceController extends Controller
      * @bodyParam name string optional New workspace name. Example: "Updated Workspace"
      * @bodyParam description string optional New description. Example: "New description"
      *
-     * @response {"success": true, "data": {...}}
+     * @response 200 {
+     *   "success": true,
+     *   "data": {
+     *     "id": "uuid",
+     *     "name": "Updated Workspace",
+     *     "description": "New description",
+     *     "owner_id": "user-uuid"
+     *   }
+     * }
      */
     #[Attributes\Put('{workspace}/update')]
     public function update(Request $request, Workspace $workspace, WorkspaceService $service): Response
@@ -105,8 +149,8 @@ class WorkspaceController extends Controller
      *
      * @urlParam workspace string required Workspace ID (UUID).
      *
-     * @response {"success": true, "message": "Workspace deleted"}
-     * @response status=403 {"success": false, "message": "Unauthorized"}
+     * @response 200 {"success": true, "data": null}
+     * @response 403 {"success": false, "message": "Unauthorized"}
      */
     #[Attributes\Delete('{workspace}/delete')]
     public function destroy(Workspace $workspace, WorkspaceService $service): Response
@@ -122,7 +166,16 @@ class WorkspaceController extends Controller
      *
      * @urlParam id string required Workspace ID (UUID).
      *
-     * @response {"success": true, "data": {...}}
+     * @response 200 {
+     *   "success": true,
+     *   "data": {
+     *     "id": "uuid",
+     *     "name": "Acme Corp",
+     *     "description": "...",
+     *     "owner_id": "user-uuid",
+     *     "created_at": "2025-04-01T12:00:00Z"
+     *   }
+     * }
      */
     #[Attributes\Patch('{id}/restore')]
     public function restore(string $id, WorkspaceService $service): Response
@@ -139,7 +192,7 @@ class WorkspaceController extends Controller
      * @urlParam workspace string required Workspace ID (UUID).
      * @bodyParam user_id string required User ID (UUID) to add as member. Example: "user-123"
      *
-     * @response {"success": true, "message": "Member added"}
+     * @response 200 {"success": true, "data": {"message": "Member added"}}
      * @response 422 {"success": false, "message": "The user_id field is required."}
      */
     #[Attributes\Post('{workspace}/members')]
@@ -158,7 +211,7 @@ class WorkspaceController extends Controller
      * @urlParam workspace string required Workspace ID (UUID).
      * @urlParam userId string required User ID (UUID) to remove.
      *
-     * @response {"success": true, "message": "Member removed"}
+     * @response 200 {"success": true, "data": {"message": "Member removed"}}
      */
     #[Attributes\Delete('{workspace}/members/{userId}')]
     public function removeMember(Workspace $workspace, string $userId, WorkspaceService $service): Response
@@ -176,7 +229,13 @@ class WorkspaceController extends Controller
      * @queryParam search string optional Search by member name. Example: "John"
      * @queryParam per_page integer optional Items per page (default 15).
      *
-     * @response {"success": true, "data": [{"id": "...", "name": "...", "email": "..."}], "meta": {...}}
+     * @response 200 {
+     *   "success": true,
+     *   "data": [
+     *     {"id": "user-uuid", "name": "Jane Doe", "email": "jane@example.com"}
+     *   ],
+     *   "meta": {"current_page":1,"per_page":15,"total":1,"last_page":1}
+     * }
      */
     #[Attributes\Get('{workspace}/members')]
     public function members(Workspace $workspace, Request $request, WorkspaceService $service): Response

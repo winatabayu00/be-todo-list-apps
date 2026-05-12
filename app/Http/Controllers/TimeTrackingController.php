@@ -62,15 +62,18 @@ class TimeTrackingController extends Controller
      * @queryParam user_id string optional Filter logs by user ID (UUID). Example: "user-123"
      * @queryParam per_page int optional Items per page (default 15, max 100).
      *
-     * @response {
+     * @response 200 {
      *   "success": true,
-     *   "data": TaskTimeLogResource[],
-     *   "meta": {
-     *     "current_page": 1,
-     *     "per_page": 15,
-     *     "total": 10,
-     *     "last_page": 1
-     *   }
+     *   "data": [
+     *     {
+     *       "id": "uuid",
+     *       "minutes": 45,
+     *       "description": "Fixed authentication bug",
+     *       "created_at": "2025-05-12T10:30:00Z",
+     *       "user": {"id":"user-id","name":"John Doe","email":"john@example.com"}
+     *     }
+     *   ],
+     *   "meta": {"current_page":1,"per_page":15,"total":10,"last_page":1}
      * }
      */
     #[Attributes\Get('logs')]
@@ -89,7 +92,7 @@ class TimeTrackingController extends Controller
      *
      * @urlParam task string required Task ID (UUID). Example: "abc-123"
      *
-     * @response {
+     * @response 200 {
      *   "success": true,
      *   "data": {
      *     "total_minutes": 120,
@@ -115,7 +118,7 @@ class TimeTrackingController extends Controller
      * @urlParam task string required Task ID (UUID). Example: "abc-123"
      * @bodyParam minutes int required Estimated time in minutes. Example: 180
      *
-     * @response {
+     * @response 200 {
      *   "success": true,
      *   "data": {
      *     "time_estimate": 180,

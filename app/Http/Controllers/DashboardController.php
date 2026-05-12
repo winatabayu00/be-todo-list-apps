@@ -14,15 +14,27 @@ class DashboardController extends Controller
     /**
      * Get task statistics grouped by status and priority.
      *
-     * @authenticated
+     * Authenticated endpoint. Returns aggregated counts for tasks scoped to the
+     * authenticated user's accessible workspaces. Optionally scope to a single project.
      *
-     * @queryParam project_id string optional Filter by project ID.
+     * @authenticated
+     * @queryParam project_id string optional UUID of the project to filter statistics. Example: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
      *
      * @response 200 {
      *   "success": true,
      *   "data": {
-     *     "by_status": {"todo": 5, "in_progress": 3, "in_review": 2, "done": 10},
-     *     "by_priority": {"urgent": 2, "high": 5, "normal": 8, "low": 5}
+     *     "by_status": {
+     *       "todo": 5,
+     *       "in_progress": 3,
+     *       "in_review": 2,
+     *       "done": 10
+     *     },
+     *     "by_priority": {
+     *       "urgent": 2,
+     *       "high": 5,
+     *       "normal": 8,
+     *       "low": 5
+     *     }
      *   }
      * }
      */
@@ -40,14 +52,36 @@ class DashboardController extends Controller
     /**
      * Get upcoming tasks due in the next X days (default 7).
      *
-     * @authenticated
+     * Authenticated endpoint. Returns a collection of tasks ordered by due date
+     * ascending. Each task is returned using the `TaskResource` shape.
      *
-     * @queryParam project_id string optional Filter by project ID.
-     * @queryParam days integer optional Number of days to look ahead. Default 7.
+     * @authenticated
+     * @queryParam project_id string optional UUID of the project to filter tasks. Example: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+     * @queryParam days integer optional Number of days to look ahead. Default: 7. Example: 14
      *
      * @response 200 {
      *   "success": true,
-     *   "data": [{"id":"uuid","title":"...","due_date":"2025-05-20",...}]
+     *   "data": [
+     *     {
+     *       "id": "uuid",
+     *       "title": "Implement rate limiting",
+     *       "description": "Use Laravel throttle middleware",
+     *       "status": "in_progress",
+     *       "priority": "high",
+     *       "start_date": "2025-05-01",
+     *       "due_date": "2025-05-20",
+     *       "time_estimate": 120,
+     *       "time_spent": 30,
+     *       "time_remaining": 90,
+     *       "order_column": 10,
+     *       "created_at": "2025-04-01T12:00:00Z",
+     *       "updated_at": "2025-04-05T12:00:00Z",
+     *       "assignee": {"id":"user-uuid","name":"John Doe","email":"john@example.com"},
+     *       "project": {"id":"project-uuid","name":"Backend API"},
+     *       "tags": [],
+     *       "subtasks": []
+     *     }
+     *   ]
      * }
      */
     #[Attributes\Get('upcoming-tasks')]
@@ -63,13 +97,25 @@ class DashboardController extends Controller
     /**
      * Get overdue tasks (due date before today).
      *
-     * @authenticated
+     * Authenticated endpoint. Returns tasks whose `due_date` is strictly before
+     * the current date. Optionally filter by project.
      *
-     * @queryParam project_id string optional Filter by project ID.
+     * @authenticated
+     * @queryParam project_id string optional UUID of the project to filter tasks. Example: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
      *
      * @response 200 {
      *   "success": true,
-     *   "data": [{"id":"uuid","title":"...","due_date":"2025-05-10",...}]
+     *   "data": [
+     *     {
+     *       "id": "uuid",
+     *       "title": "Fix payment bug",
+     *       "due_date": "2025-05-10",
+     *       "status": "todo",
+     *       "priority": "urgent",
+     *       "project": {"id":"project-uuid","name":"Payments"},
+     *       "assignee": {"id":"user-uuid","name":"Jane Doe","email":"jane@example.com"}
+     *     }
+     *   ]
      * }
      */
     #[Attributes\Get('overdue-tasks')]
@@ -82,14 +128,25 @@ class DashboardController extends Controller
     /**
      * Get recently created tasks (last X days, default 7).
      *
-     * @authenticated
+     * Authenticated endpoint. Returns tasks created within the last `days` days.
+     * Optionally filter by project.
      *
-     * @queryParam project_id string optional Filter by project ID.
-     * @queryParam days integer optional Number of days to look back. Default 7.
+     * @authenticated
+     * @queryParam project_id string optional UUID of the project to filter tasks. Example: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+     * @queryParam days integer optional Number of days to look back. Default: 7. Example: 30
      *
      * @response 200 {
      *   "success": true,
-     *   "data": [{"id":"uuid","title":"...","created_at":"...",...}]
+     *   "data": [
+     *     {
+     *       "id": "uuid",
+     *       "title": "Add logging",
+     *       "created_at": "2025-04-28T09:00:00Z",
+     *       "status": "todo",
+     *       "priority": "normal",
+     *       "project": {"id":"project-uuid","name":"Backend API"}
+     *     }
+     *   ]
      * }
      */
     #[Attributes\Get('recent-tasks')]
@@ -105,13 +162,25 @@ class DashboardController extends Controller
     /**
      * Get tasks assigned to the authenticated user.
      *
-     * @authenticated
+     * Authenticated endpoint. Returns tasks where the authenticated user is the
+     * `assignee`. Optionally filter by `status`.
      *
-     * @queryParam status string optional Filter by status (todo, in_progress, in_review, done).
+     * @authenticated
+     * @queryParam status string optional Filter by task status. One of: todo, in_progress, in_review, done. Example: "in_progress"
      *
      * @response 200 {
      *   "success": true,
-     *   "data": [{"id":"uuid","title":"...","status":"in_progress",...}]
+     *   "data": [
+     *     {
+     *       "id": "uuid",
+     *       "title": "Code review",
+     *       "status": "in_progress",
+     *       "priority": "high",
+     *       "project": {"id":"project-uuid","name":"Backend API"},
+     *       "time_estimate": 60,
+     *       "time_spent": 15
+     *     }
+     *   ]
      * }
      */
     #[Attributes\Get('my-tasks')]
@@ -125,9 +194,11 @@ class DashboardController extends Controller
     /**
      * Get summary of a specific workspace (project, task, member counts).
      *
-     * @authenticated
+     * Authenticated endpoint. Returns counts scoped to the provided workspace
+     * UUID. The authenticated user must have access to the workspace.
      *
-     * @urlParam workspaceId string required The UUID of the workspace.
+     * @authenticated
+     * @urlParam workspaceId string required UUID of the workspace. Example: "ws-3fa85f64-5717-4562-b3fc-2c963f66afa6"
      *
      * @response 200 {
      *   "success": true,
@@ -149,6 +220,9 @@ class DashboardController extends Controller
 
     /**
      * Get overall summary for the authenticated user across all accessible workspaces.
+     *
+     * Authenticated endpoint. Aggregates counts and time metrics across all
+     * workspaces the user can access.
      *
      * @authenticated
      *

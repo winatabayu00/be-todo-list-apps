@@ -20,6 +20,7 @@ class TaskController extends Controller
      *
      * @authenticated
      *
+     * @header Authorization string required Bearer {token}
      * @queryParam filter[project_id] string optional Filter by project ID. Example: "abc-123"
      * @queryParam filter[status] string optional Comma-separated statuses (todo,in_progress,in_review,done). Example: "todo,in_progress"
      * @queryParam filter[priority] string optional Comma-separated priorities (urgent,high,normal,low). Example: "high,normal"
@@ -33,7 +34,27 @@ class TaskController extends Controller
      *
      * @response 200 {
      *   "success": true,
-     *   "data": [{"id":"uuid","title":"...",...}],
+     *   "data": [
+     *     {
+     *       "id": "uuid",
+     *       "title": "Finish documentation",
+     *       "description": "Write API docs for Scramble",
+     *       "status": "todo",
+     *       "priority": "normal",
+     *       "start_date": "2025-05-01",
+     *       "due_date": "2025-05-10",
+     *       "time_estimate": 120,
+     *       "time_spent": 0,
+     *       "time_remaining": 120,
+     *       "order_column": 1,
+     *       "created_at": "2025-04-01T12:00:00Z",
+     *       "updated_at": "2025-04-01T12:00:00Z",
+     *       "assignee": {"id":"user-uuid","name":"John Doe","email":"john@example.com"},
+     *       "project": {"id":"project-uuid","name":"Backend API"},
+     *       "tags": [],
+     *       "subtasks": []
+     *     }
+     *   ],
      *   "meta": {"current_page":1,"per_page":15,"total":100,"last_page":7}
      * }
      * @response 401 {"message": "Unauthenticated."}
@@ -79,10 +100,29 @@ class TaskController extends Controller
      * @bodyParam tags array optional Array of tag IDs (UUID).
      * @bodyParam assignees array optional Array of user IDs (UUID) for multiple assignees.
      *
+     * @header Authorization string required Bearer {token}
      * @response 201 {
      *   "success": true,
      *   "message": "Task created successfully.",
-     *   "data": {"id":"uuid","title":"...",...}
+     *   "data": {
+     *     "id": "uuid",
+     *     "title": "Finish documentation",
+     *     "description": "Write API docs for Scramble",
+     *     "status": "todo",
+     *     "priority": "normal",
+     *     "start_date": "2025-05-01",
+     *     "due_date": "2025-05-10",
+     *     "time_estimate": 120,
+     *     "time_spent": 0,
+     *     "time_remaining": 120,
+     *     "order_column": 1,
+     *     "created_at": "2025-04-01T12:00:00Z",
+     *     "updated_at": "2025-04-01T12:00:00Z",
+     *     "assignee": {"id":"user-uuid","name":"John Doe","email":"john@example.com"},
+     *     "project": {"id":"project-uuid","name":"Backend API"},
+     *     "tags": [],
+     *     "subtasks": []
+     *   }
      * }
      * @response 422 {"success": false, "message": "The title field is required.", "errors": {...}}
      * @response 401 {"message": "Unauthenticated."}
@@ -103,9 +143,28 @@ class TaskController extends Controller
      *
      * @urlParam task string required The UUID of the task. Example: "abc-123"
      *
+     * @header Authorization string required Bearer {token}
      * @response 200 {
      *   "success": true,
-     *   "data": {"id":"uuid","title":"...","description":"...",...}
+     *   "data": {
+     *     "id": "uuid",
+     *     "title": "Finish documentation",
+     *     "description": "Write API docs for Scramble",
+     *     "status": "todo",
+     *     "priority": "normal",
+     *     "start_date": "2025-05-01",
+     *     "due_date": "2025-05-10",
+     *     "time_estimate": 120,
+     *     "time_spent": 0,
+     *     "time_remaining": 120,
+     *     "order_column": 1,
+     *     "created_at": "2025-04-01T12:00:00Z",
+     *     "updated_at": "2025-04-01T12:00:00Z",
+     *     "assignee": {"id":"user-uuid","name":"John Doe","email":"john@example.com"},
+     *     "project": {"id":"project-uuid","name":"Backend API"},
+     *     "tags": [],
+     *     "subtasks": []
+     *   }
      * }
      * @response 404 {"success": false, "message": "Task not found."}
      * @response 401 {"message": "Unauthenticated."}
@@ -136,11 +195,31 @@ class TaskController extends Controller
      * @bodyParam tags array optional Array of tag IDs to sync.
      * @bodyParam assignees array optional Array of user IDs for multiple assignees.
      *
+     * @header Authorization string required Bearer {token}
      * @response 200 {
      *   "success": true,
      *   "message": "Task updated successfully.",
-     *   "data": {"id":"uuid","title":"...",...}
+     *   "data": {
+     *     "id": "uuid",
+     *     "title": "Finish documentation",
+     *     "description": "Write API docs for Scramble",
+     *     "status": "todo",
+     *     "priority": "normal",
+     *     "start_date": "2025-05-01",
+     *     "due_date": "2025-05-10",
+     *     "time_estimate": 120,
+     *     "time_spent": 0,
+     *     "time_remaining": 120,
+     *     "order_column": 1,
+     *     "created_at": "2025-04-01T12:00:00Z",
+     *     "updated_at": "2025-04-01T12:00:00Z",
+     *     "assignee": {"id":"user-uuid","name":"John Doe","email":"john@example.com"},
+     *     "project": {"id":"project-uuid","name":"Backend API"},
+     *     "tags": [],
+     *     "subtasks": []
+     *   }
      * }
+     * @response 401 {"message": "Unauthenticated."}
      * @response 404 {"success": false, "message": "Task not found."}
      * @response 422 {"success": false, "message": "Validation error.", "errors": {...}}
      */
@@ -159,10 +238,12 @@ class TaskController extends Controller
      *
      * @urlParam task string required The UUID of the task. Example: "abc-123"
      *
+     * @header Authorization string required Bearer {token}
      * @response 200 {
      *   "success": true,
-     *   "message": "Task deleted successfully."
+     *   "data": null
      * }
+     * @response 401 {"message": "Unauthenticated."}
      * @response 404 {"success": false, "message": "Task not found."}
      */
     #[Attributes\Delete('{task}/delete')]
@@ -180,11 +261,31 @@ class TaskController extends Controller
      *
      * @urlParam task string required The UUID of the task. Example: "abc-123"
      *
+     * @header Authorization string required Bearer {token}
      * @response 200 {
      *   "success": true,
      *   "message": "Task restored successfully.",
-     *   "data": {"id":"uuid","title":"...",...}
+     *   "data": {
+     *     "id": "uuid",
+     *     "title": "Finish documentation",
+     *     "description": "Write API docs for Scramble",
+     *     "status": "todo",
+     *     "priority": "normal",
+     *     "start_date": "2025-05-01",
+     *     "due_date": "2025-05-10",
+     *     "time_estimate": 120,
+     *     "time_spent": 0,
+     *     "time_remaining": 120,
+     *     "order_column": 1,
+     *     "created_at": "2025-04-01T12:00:00Z",
+     *     "updated_at": "2025-04-01T12:00:00Z",
+     *     "assignee": {"id":"user-uuid","name":"John Doe","email":"john@example.com"},
+     *     "project": {"id":"project-uuid","name":"Backend API"},
+     *     "tags": [],
+     *     "subtasks": []
+     *   }
      * }
+     * @response 401 {"message": "Unauthenticated."}
      * @response 404 {"success": false, "message": "Task not found."}
      */
     #[Attributes\Patch('{task}/restore')]

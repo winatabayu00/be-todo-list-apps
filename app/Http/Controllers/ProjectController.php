@@ -28,7 +28,23 @@ class ProjectController extends Controller
      * @queryParam include string optional workspace, creator, tasks.
      * @queryParam per_page integer optional Items per page (default 15).
      *
-     * @response array{success: bool, data: ProjectResource[], meta: array}
+     * @response 200 {
+     *   "success": true,
+     *   "data": [
+     *     {
+     *       "id": "uuid",
+     *       "name": "Mobile App",
+     *       "description": "...",
+     *       "visibility": "team",
+     *       "created_at": "2025-04-01T12:00:00Z",
+     *       "updated_at": "2025-04-01T12:00:00Z",
+     *       "workspace": {"id":"ws-uuid","name":"Acme"},
+     *       "creator": {"id":"user-uuid","name":"John Doe"},
+     *       "tasks_count": 12
+     *     }
+     *   ],
+     *   "meta": {"current_page":1,"per_page":15,"total":10,"last_page":1}
+     * }
      */
     #[Attributes\Get('')]
     public function index(): Response
@@ -56,7 +72,17 @@ class ProjectController extends Controller
      * @bodyParam visibility string optional private|team|public (default private).
      * @bodyParam workspace_id string required Workspace ID (UUID).
      *
-     * @response 201 {"success": true, "data": {"id": "...", "name": "...", ...}}
+     * @response 201 {
+     *   "success": true,
+     *   "data": {
+     *     "id": "uuid",
+     *     "name": "Mobile App",
+     *     "description": "...",
+     *     "visibility": "private",
+     *     "workspace": {"id":"ws-uuid","name":"Acme"},
+     *     "creator": {"id":"user-uuid","name":"John Doe"}
+     *   }
+     * }
      */
     #[Attributes\Post('create')]
     public function create(Request $request, ProjectService $service): Response
@@ -73,7 +99,20 @@ class ProjectController extends Controller
      *
      * @urlParam project string required Project ID (UUID). Example: "proj-123"
      *
-     * @response {"success": true, "data": {"id": "...", "workspace": {...}, "creator": {...}, "tasks": [...]}}
+     * @response 200 {
+     *   "success": true,
+     *   "data": {
+     *     "id": "uuid",
+     *     "name": "Mobile App",
+     *     "description": "...",
+     *     "visibility": "team",
+     *     "workspace": {"id":"ws-uuid","name":"Acme"},
+     *     "creator": {"id":"user-uuid","name":"John Doe"},
+     *     "tasks": [
+     *       {"id":"task-uuid","title":"..."}
+     *     ]
+     *   }
+     * }
      */
     #[Attributes\Get('{project}/detail')]
     public function show(Project $project): Response
@@ -94,7 +133,17 @@ class ProjectController extends Controller
      * @bodyParam visibility string optional New visibility.
      * @bodyParam workspace_id string optional New workspace ID.
      *
-     * @response {"success": true, "data": {...}}
+     * @response 200 {
+     *   "success": true,
+     *   "data": {
+     *     "id": "uuid",
+     *     "name": "Mobile App",
+     *     "description": "...",
+     *     "visibility": "team",
+     *     "workspace": {"id":"ws-uuid","name":"Acme"},
+     *     "creator": {"id":"user-uuid","name":"John Doe"}
+     *   }
+     * }
      */
     #[Attributes\Put('{project}/update')]
     public function update(Request $request, Project $project, ProjectService $service): Response
@@ -111,7 +160,10 @@ class ProjectController extends Controller
      *
      * @urlParam project string required Project ID (UUID).
      *
-     * @response {"success": true, "message": "Project deleted"}
+     * @response 200 {
+     *   "success": true,
+     *   "data": null
+     * }
      */
     #[Attributes\Delete('{project}/delete')]
     public function destroy(Project $project, ProjectService $service): Response
@@ -128,7 +180,17 @@ class ProjectController extends Controller
      *
      * @urlParam project string required Project ID (UUID).
      *
-     * @response {"success": true, "data": {...}}
+     * @response 200 {
+     *   "success": true,
+     *   "data": {
+     *     "id": "uuid",
+     *     "name": "Mobile App",
+     *     "description": "...",
+     *     "visibility": "team",
+     *     "workspace": {"id":"ws-uuid","name":"Acme"},
+     *     "creator": {"id":"user-uuid","name":"John Doe"}
+     *   }
+     * }
      */
     #[Attributes\Patch('{project}/restore')]
     public function restore(string $project, ProjectService $service): Response
