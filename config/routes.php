@@ -83,6 +83,7 @@ return [
     ],
     'api-app' => [
         \App\Http\Controllers\TaskController::class,
+        \App\Http\Controllers\SubTaskController::class,
         \App\Http\Controllers\ProjectController::class,
         \App\Http\Controllers\WorkspaceController::class,
         \App\Http\Controllers\TagController::class,

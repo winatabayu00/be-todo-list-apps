@@ -228,6 +228,7 @@ class TaskController extends Controller
     {
         $user = auth()->user();
         $updatedTask = $service->update(task: $task, user: $user, inputs: $request->input());
+        $updatedTask->loadMissing(['assignee', 'creator', 'project', 'tags', 'subtasks']);
         return $this->response(TaskResource::make($updatedTask));
     }
 
@@ -293,6 +294,7 @@ class TaskController extends Controller
     {
         $user = auth()->user();
         $task = $service->restore(taskId: $taskId, user: $user);
+        $task->loadMissing(['assignee', 'creator', 'project', 'tags', 'subtasks']);
         return $this->response(TaskResource::make($task));
     }
 }
