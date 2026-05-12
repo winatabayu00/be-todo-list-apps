@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\TaskResource;
 use App\Models\Tasks\Task;
+use App\Queries\ProjectQuery;
 use App\Queries\TaskQuery;
+use App\Queries\WorkspaceQuery;
 use App\Services\TaskService;
 use Dentro\Yalr\Attributes;
 use Illuminate\Http\Request;
@@ -39,7 +41,20 @@ class TaskController extends Controller
     #[Attributes\Get('')]
     public function index(): Response
     {
-        $query = TaskQuery::filterColumn()
+        $user = auth()->user();
+        $workspaces = WorkspaceQuery::where('owner_id', $user->id)
+            ->filterColumn()
+            ->orderColumn()
+            ->build()
+            ->select('id');
+
+        $projects = ProjectQuery::whereIn('workspace_id', $workspaces->pluck('id')->toArray())
+            ->orderColumn()
+            ->build()
+            ->select('id');
+
+        $query = TaskQuery::with(['assignee', 'creator', 'project', 'tags'])
+            ->whereIn('project_id', $projects->pluck('id')->toArray())
             ->orderColumn()
             ->getAllDataPaginated();
 
@@ -98,6 +113,7 @@ class TaskController extends Controller
     #[Attributes\get('{task}/detail')]
     public function show(Task $task): Response
     {
+        $task->loadMissing(['assignee', 'creator', 'project', 'tags', 'subtasks']);
         return $this->response(TaskResource::make($task));
     }
 

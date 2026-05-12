@@ -34,7 +34,8 @@ class TagController extends Controller
     #[Attributes\Get('')]
     public function index(): Response
     {
-        $query = TagQuery::filterColumn()
+        $query = TagQuery::with(['workspace'])
+            ->filterColumn()
             ->orderColumn()
             ->getAllDataPaginated();
 

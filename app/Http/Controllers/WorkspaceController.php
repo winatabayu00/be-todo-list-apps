@@ -33,7 +33,10 @@ class WorkspaceController extends Controller
     #[Attributes\Get('')]
     public function index(): Response
     {
-        $query = WorkspaceQuery::filterColumn()
+        $user = auth()->user();
+        $query = WorkspaceQuery::with(['owner', 'members'])
+            ->where('owner_id', $user->id)
+            ->filterColumn()
             ->orderColumn()
             ->getAllDataPaginated();
 

@@ -41,9 +41,9 @@ class TaskResource extends JsonResource
                 'id' => $this->resource->project->id,
                 'name' => $this->resource->project->name,
             ]),
-//            'tags' => TagResource::collection($this->whenLoaded('tags')),
+            'tags' => TagResource::collection($this->whenLoaded('tags')),
 //            'assignees' => UserSimpleResource::collection($this->whenLoaded('assignees')),
-//            'subtasks' => SubTaskResource::collection($this->whenLoaded('subtasks')),
+            'subtasks' => SubTaskResource::collection($this->whenLoaded('subtasks')),
         ];
     }
 }

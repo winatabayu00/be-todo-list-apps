@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Resources\ProjectResource;
 use App\Models\Project;
 use App\Queries\ProjectQuery;
+use App\Queries\WorkspaceQuery;
 use App\Services\ProjectService;
 use Dentro\Yalr\Attributes;
 use Illuminate\Http\Request;
@@ -32,7 +33,14 @@ class ProjectController extends Controller
     #[Attributes\Get('')]
     public function index(): Response
     {
-        $query = ProjectQuery::filterColumn()
+        $user = auth()->user();
+        $workspaces = WorkspaceQuery::where('owner_id', $user->id)
+            ->filterColumn()
+            ->orderColumn()
+            ->getAllData();
+
+        $query = ProjectQuery::with(['workspace', 'creator'])->withCount('tasks')
+            ->whereIn('workspace_id', $workspaces->pluck('id')->toArray())
             ->orderColumn()
             ->getAllDataPaginated();
         return $this->response(ProjectResource::collection($query));
@@ -70,6 +78,8 @@ class ProjectController extends Controller
     #[Attributes\Get('{project}/detail')]
     public function show(Project $project): Response
     {
+        $project->loadMissing(['workspace', 'creator']);
+        $project->loadCount('tasks');
         return $this->response(ProjectResource::make($project->load(['workspace', 'creator', 'tasks'])));
     }
 
