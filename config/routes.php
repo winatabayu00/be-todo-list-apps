@@ -57,6 +57,12 @@ return [
             'prefix' => 'api/app',
             'as' => 'api.app',
         ],
+
+        'api-option' => [
+            'middleware' => ['api', 'auth:sanctum'],
+            'prefix' => 'api/options',
+            'as' => 'api.options',
+        ],
     ],
 
     /*
@@ -82,5 +88,8 @@ return [
         \App\Http\Controllers\TagController::class,
         \App\Http\Controllers\TimeTrackingController::class,
         \App\Http\Controllers\DashboardController::class,
+    ],
+    'api-option' => [
+        \App\Http\Controllers\OptionController::class,
     ],
 ];
